@@ -50,9 +50,13 @@ export default function UserLogin() {
       const userMatch = storedUsers.find(u => u.email === email && u.password === password);
       
       // Hardcoded check or dynamic check
-      if ((email === "user@mystore.com" && password === "password123") || userMatch) {
+      if (email === "user@mystore.com" && password === "password123") {
         localStorage.setItem("isUserLoggedIn", "true");
-        // Force a reload to update navbar state (simple implementation)
+        localStorage.setItem("currentUser", JSON.stringify({ name: "Demo User", email: "user@mystore.com" }));
+        window.location.href = "/";
+      } else if (userMatch) {
+        localStorage.setItem("isUserLoggedIn", "true");
+        localStorage.setItem("currentUser", JSON.stringify({ name: userMatch.name, email: userMatch.email }));
         window.location.href = "/";
       } else {
         setError("Invalid credentials. Please try again.");

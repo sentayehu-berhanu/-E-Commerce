@@ -8,17 +8,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function ProductGrid({ products }) {
   const ref = useRef();
-  const [activeCategory, setActiveCategory] = useState("New Arrivals");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-
-  let filteredProducts = activeCategory === "New Arrivals" 
-    ? products 
-    : products.filter(p => p.category === activeCategory);
-    
-  if (searchQuery) {
-    filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  }
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -29,7 +18,7 @@ export default function ProductGrid({ products }) {
             start: "top 85%"
           },
           opacity: 0,
-          y: 50,
+          y: 30,
           duration: 0.6,
           delay: i * 0.1
         });
@@ -37,81 +26,64 @@ export default function ProductGrid({ products }) {
     }, ref);
 
     return () => ctx.revert();
-  }, [filteredProducts]);
-
-  const categories = ["New Arrivals", "Electronics", "Home Goods", "Apparel"];
+  }, [products]);
 
   return (
-    <div style={{ padding: '40px 20px', background: '#f5f5f7' }}>
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        background: 'white', 
-        borderRadius: '24px', 
-        padding: '40px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.05)'
-      }}>
-        {/* Category Header */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '40px',
-          paddingBottom: '15px',
-          borderBottom: '1px solid #f0f0f0'
-        }}>
-          <div style={{ display: 'flex', gap: '40px', fontWeight: '500', fontSize: '1.1rem' }}>
-            {categories.map(cat => (
-              <span 
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                style={{ 
-                  color: activeCategory === cat ? '#1d1d1f' : '#86868b', 
-                  borderBottom: activeCategory === cat ? '2px solid #1d1d1f' : '2px solid transparent', 
-                  paddingBottom: '15px', 
-                  marginBottom: '-16px', 
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {cat}
-              </span>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: '20px', fontSize: '1.2rem', color: '#1d1d1f', alignItems: 'center' }}>
-            {showSearch && (
-              <input 
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #d2d2d7',
-                  background: '#f5f5f7',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                  width: '150px'
-                }}
-                autoFocus
-              />
-            )}
-            <span style={{ cursor: 'pointer' }} onClick={() => setShowSearch(!showSearch)}>🔍</span>
-            <Link to="/cart" style={{ textDecoration: 'none', color: 'inherit' }}>🛒</Link>
-          </div>
+    <div id="shop" style={{ background: '#f5f5f7', padding: '60px 20px', fontFamily: "'Inter', sans-serif" }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', background: 'white', borderRadius: '24px', padding: '50px', boxShadow: '0 10px 40px rgba(0,0,0,0.02)' }}>
+        
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#111', margin: 0 }}>
+            {new URLSearchParams(window.location.search).get("category") || "Featured Products"}
+          </h2>
+          <Link to="/" style={{ color: '#111', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            View All Products <span>→</span>
+          </Link>
         </div>
 
         {/* Product Grid */}
-        <div ref={ref} className="grid" style={{ padding: 0 }}>
-          {filteredProducts.map(p => (
+        <div ref={ref} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '30px' }}>
+          {products.map(p => (
             <ProductCard key={p.id} product={p} />
           ))}
-          {filteredProducts.length === 0 && (
+          {products.length === 0 && (
             <div style={{ width: '100%', textAlign: 'center', padding: '40px', color: '#86868b', gridColumn: '1 / -1' }}>
-              No products found matching your criteria.
+              No products found.
             </div>
           )}
+        </div>
+
+        {/* Trust Badges - Bottom */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', paddingTop: '40px', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f8f8f8', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>🚚</div>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#111' }}>Free Shipping</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#86868b', maxWidth: '150px', lineHeight: '1.4' }}>Free shipping on all orders over $100</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f8f8f8', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>🔄</div>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#111' }}>30 Days Return</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#86868b', maxWidth: '150px', lineHeight: '1.4' }}>Not satisfied? Get a full refund within 30 days</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f8f8f8', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>🔒</div>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#111' }}>Secure Payment</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#86868b', maxWidth: '150px', lineHeight: '1.4' }}>Your payment information is processed securely</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f8f8f8', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>💬</div>
+            <div>
+              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#111' }}>24/7 Support</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#86868b', maxWidth: '150px', lineHeight: '1.4' }}>Our support team is always here to help you</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

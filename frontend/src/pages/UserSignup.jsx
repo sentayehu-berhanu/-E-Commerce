@@ -67,6 +67,7 @@ export default function UserSignup() {
         
         // Auto log in
         localStorage.setItem("isUserLoggedIn", "true");
+        localStorage.setItem("currentUser", JSON.stringify({ name: newUser.name, email: newUser.email }));
         window.location.href = "/";
       } catch (err) {
         setError("Something went wrong. Please try again.");
