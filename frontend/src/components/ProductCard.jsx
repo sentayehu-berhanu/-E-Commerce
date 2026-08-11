@@ -1,16 +1,31 @@
 import { useContext, useState } from "react";
 import gsap from "gsap";
 import { CartContext } from "../context/CartContext";
+import { UserContext } from "../context/UserContext";
+import { Link } from "react-router-dom";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useContext(CartContext);
+  const { wishlist, toggleWishlist } = useContext(UserContext);
   const [added, setAdded] = useState(false);
+
+  const productId = product._id || product.id;
+  
+  // Wishlist returns populated products or just ObjectIds depending on populate(). 
+  // Let's handle both cases just in case.
+  const isWishlisted = wishlist.some(item => 
+    item === productId || (item._id && item._id === productId)
+  );
 
   const handleAddToCart = () => {
     addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
+
+  const averageRating = product.reviews && product.reviews.length > 0
+    ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length).toFixed(1)
+    : 5.0;
 
   return (
     <div 
@@ -35,24 +50,36 @@ export default function ProductCard({ product }) {
       }}
     >
       {/* Heart Icon */}
-      <div style={{ position: 'absolute', top: '20px', right: '20px', cursor: 'pointer', zIndex: 2, fontSize: '1.2rem', color: '#ccc' }}>♡</div>
-      
-      {/* Image */}
-      <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', background: '#f8f8f8', borderRadius: '12px', padding: '20px' }}>
-        <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+      <div 
+        onClick={() => toggleWishlist(productId)}
+        style={{ position: 'absolute', top: '20px', right: '20px', cursor: 'pointer', zIndex: 2, fontSize: '1.4rem', color: isWishlisted ? '#ff3b30' : '#ccc' }}
+      >
+        {isWishlisted ? '♥' : '♡'}
       </div>
+      
+      {/* Image wrapped in Link */}
+      <Link to={`/product/${productId}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', background: '#f8f8f8', borderRadius: '12px', padding: '20px' }}>
+          <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+        </div>
 
-      {/* Details */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-        <div>
-          <h3 style={{ margin: '0 0 10px 0', fontSize: '1rem', fontWeight: 600, color: '#111' }}>{product.name}</h3>
-          
-          {/* Rating */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '15px' }}>
-            <div style={{ color: '#ffb800', fontSize: '0.8rem' }}>★★★★★</div>
-            <span style={{ fontSize: '0.75rem', color: '#86868b' }}>(87)</span>
+        {/* Details */}
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+          <div>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '1rem', fontWeight: 600, color: '#111' }}>{product.name}</h3>
+            
+            {/* Rating */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '15px' }}>
+              <div style={{ color: '#ffb800', fontSize: '0.8rem' }}>
+                {[1,2,3,4,5].map(star => (
+                  <span key={star} style={{ color: star <= Math.round(averageRating) ? '#ffb800' : '#e0e0e0' }}>★</span>
+                ))}
+              </div>
+              <span style={{ fontSize: '0.75rem', color: '#86868b' }}>({product.reviews?.length || 0})</span>
+            </div>
           </div>
         </div>
+      </Link>
 
         {/* Price & Add to Cart */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -77,7 +104,6 @@ export default function ProductCard({ product }) {
             {added ? '✓' : '🛒'}
           </button>
         </div>
-      </div>
     </div>
   );
 }

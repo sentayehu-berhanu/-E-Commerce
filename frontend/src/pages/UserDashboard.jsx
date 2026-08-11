@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
 
 export default function UserDashboard() {
+  const { user, wishlist, logoutUser } = useContext(UserContext);
   const isLoggedIn = localStorage.getItem("isUserLoggedIn") === "true";
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [user, setUser] = useState({ name: 'User', email: 'user@example.com' });
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    let currentUserEmail = 'user@example.com';
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      currentUserEmail = parsedUser.email;
+    let currentUserEmail = user?.email;
+    if (!currentUserEmail) {
+      const storedUser = localStorage.getItem("currentUser");
+      if (storedUser) {
+        currentUserEmail = JSON.parse(storedUser).email;
+      }
     }
     
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    fetch(`${API_URL}/orders?email=${currentUserEmail}`)
-      .then(res => res.json())
-      .then(data => setOrders(data))
-      .catch(err => console.error(err));
-  }, []);
+    if (currentUserEmail) {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      fetch(`${API_URL}/orders?email=${currentUserEmail}`)
+        .then(res => res.json())
+        .then(data => setOrders(data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
 
   if (!isLoggedIn) {
     return (
@@ -68,10 +71,24 @@ export default function UserDashboard() {
         return (
           <div style={{ background: 'white', borderRadius: '16px', padding: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '1.25rem', color: '#111' }}>Saved Items</h3>
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#86868b', background: '#f9f9fb', borderRadius: '12px' }}>
-              <span style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}>❤️</span>
-              You haven't saved any items yet.
-            </div>
+            {wishlist.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#86868b', background: '#f9f9fb', borderRadius: '12px' }}>
+                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '10px' }}>❤️</span>
+                You haven't saved any items yet.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+                {wishlist.map(product => (
+                  <div key={product._id || product.id} style={{ border: '1px solid #f0f0f0', borderRadius: '12px', padding: '15px', textAlign: 'center' }}>
+                    <div style={{ height: '120px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '15px', background: '#f8f8f8', borderRadius: '8px', padding: '10px' }}>
+                      <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <h4 style={{ margin: '0 0 5px 0', fontSize: '0.95rem' }}>{product.name}</h4>
+                    <p style={{ margin: 0, fontWeight: 600, color: '#111' }}>${product.price?.toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       case 'settings':
@@ -81,11 +98,11 @@ export default function UserDashboard() {
             <form style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.9rem', color: '#555', marginBottom: '8px' }}>Name</label>
-                <input type="text" defaultValue={user.name} style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #e0e0e0', outline: 'none', fontSize: '1rem', boxSizing: 'border-box' }} />
+                <input type="text" defaultValue={user?.name || ''} style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #e0e0e0', outline: 'none', fontSize: '1rem', boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.9rem', color: '#555', marginBottom: '8px' }}>Email</label>
-                <input type="email" defaultValue={user.email} style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #e0e0e0', outline: 'none', fontSize: '1rem', boxSizing: 'border-box' }} />
+                <input type="email" defaultValue={user?.email || ''} style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #e0e0e0', outline: 'none', fontSize: '1rem', boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.9rem', color: '#555', marginBottom: '8px' }}>New Password</label>
@@ -171,11 +188,11 @@ export default function UserDashboard() {
           <div style={{ background: 'white', borderRadius: '16px', padding: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.02)', height: 'fit-content' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px' }}>
               <div style={{ width: '60px', height: '60px', borderRadius: '30px', background: '#7a3ef5', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.5rem', fontWeight: 600 }}>
-                {user.name.charAt(0).toUpperCase()}
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#111' }}>{user.name}</h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#86868b' }}>{user.email}</p>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#111' }}>{user?.name || 'User'}</h3>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#86868b' }}>{user?.email || ''}</p>
               </div>
             </div>
             

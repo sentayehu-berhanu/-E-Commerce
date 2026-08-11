@@ -13,6 +13,8 @@ const orderSchema = new mongoose.Schema({
   ],
   total: { type: Number, required: true },
   status: { type: String, default: 'Processing' },
+  paymentStatus: { type: String, default: 'Pending' },
+  stripeSessionId: { type: String },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

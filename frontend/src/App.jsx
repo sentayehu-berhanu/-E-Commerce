@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { pageEnter } from "./animations/pageTransition";
 import { CartProvider } from "./context/CartContext";
 import { ProductProvider } from "./context/ProductContext";
+import { UserProvider } from "./context/UserContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -18,6 +19,7 @@ import UserSignup from "./pages/UserSignup";
 import UserDashboard from "./pages/UserDashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import ProductDetails from "./pages/ProductDetails";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -37,6 +39,7 @@ const AnimatedRoutes = () => {
     <div ref={pageRef} style={{ width: '100%' }}>
       <Routes location={location}>
         <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<UserLogin />} />
@@ -55,14 +58,16 @@ const AnimatedRoutes = () => {
 
 export default function App() {
   return (
-    <ProductProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <Navbar />
-          <AnimatedRoutes />
-          <Footer />
-        </BrowserRouter>
-      </CartProvider>
-    </ProductProvider>
+    <UserProvider>
+      <ProductProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <Navbar />
+            <AnimatedRoutes />
+            <Footer />
+          </BrowserRouter>
+        </CartProvider>
+      </ProductProvider>
+    </UserProvider>
   );
 }

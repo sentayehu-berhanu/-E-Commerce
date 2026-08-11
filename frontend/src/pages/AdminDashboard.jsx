@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useMemo } from "react";
 import { ProductContext } from "../context/ProductContext";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6666'];
 
 export default function AdminDashboard() {
   const { products, deleteProduct } = useContext(ProductContext);
@@ -35,6 +38,40 @@ export default function AdminDashboard() {
   const totalSales = parseFloat(localStorage.getItem("totalSales") || "0");
   const totalOrders = parseInt(localStorage.getItem("totalOrders") || "0", 10);
 
+  // Data for Line Chart (Sales over time)
+  const salesData = useMemo(() => {
+    if (orders.length === 0) {
+      // Dummy data if no orders
+      return [
+        { name: 'Mon', sales: 120 },
+        { name: 'Tue', sales: 300 },
+        { name: 'Wed', sales: 250 },
+        { name: 'Thu', sales: 400 },
+        { name: 'Fri', sales: 150 },
+        { name: 'Sat', sales: 500 },
+        { name: 'Sun', sales: 450 },
+      ];
+    }
+    
+    // Group real orders by date
+    const grouped = {};
+    orders.forEach(order => {
+      const date = new Date(order.createdAt || order.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      grouped[date] = (grouped[date] || 0) + order.total;
+    });
+    
+    return Object.keys(grouped).map(date => ({ name: date, sales: grouped[date] }));
+  }, [orders]);
+
+  // Data for Pie Chart (Products by Category)
+  const categoryData = useMemo(() => {
+    const grouped = {};
+    products.forEach(p => {
+      grouped[p.category] = (grouped[p.category] || 0) + 1;
+    });
+    return Object.keys(grouped).map(cat => ({ name: cat, value: grouped[cat] }));
+  }, [products]);
+
   return (
     <div style={{ padding: '80px 40px', maxWidth: '1200px', margin: '0 auto', minHeight: '80vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
@@ -68,6 +105,58 @@ export default function AdminDashboard() {
         <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
           <h3 style={{ margin: 0, color: '#86868b', fontSize: '1rem' }}>Active Products</h3>
           <p style={{ margin: '10px 0 0 0', fontSize: '2rem', fontWeight: 700, color: '#1d1d1f' }}>{products.length}</p>
+        </div>
+      </div>
+
+      {/* Analytics Charts */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '40px' }}>
+        
+        {/* Sales Line Chart */}
+        <div style={{ background: 'white', padding: '40px', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ margin: '0 0 30px 0', fontSize: '1.5rem' }}>Sales Overview</h2>
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <LineChart data={salesData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#86868b', fontSize: 12 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#86868b', fontSize: 12 }} dx={-10} tickFormatter={(value) => `$${value}`} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                  formatter={(value) => [`$${value.toFixed(2)}`, 'Sales']}
+                />
+                <Line type="monotone" dataKey="sales" stroke="#7a3ef5" strokeWidth={4} dot={{ r: 6, fill: '#7a3ef5', strokeWidth: 2, stroke: 'white' }} activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Categories Pie Chart */}
+        <div style={{ background: 'white', padding: '40px', borderRadius: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ margin: '0 0 30px 0', fontSize: '1.5rem' }}>Products by Category</h2>
+          <div style={{ width: '100%', height: 300, display: 'flex', justifyContent: 'center' }}>
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 

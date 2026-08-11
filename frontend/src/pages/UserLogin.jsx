@@ -1,18 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import gsap from "gsap";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 export default function UserLogin() {
   const containerRef = useRef();
   const formRef = useRef();
   const navigate = useNavigate();
+  const { loginUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Check if already logged in
     if (localStorage.getItem("isUserLoggedIn") === "true") {
       navigate("/");
     }
@@ -37,36 +38,35 @@ export default function UserLogin() {
     return () => ctx.revert();
   }, [navigate]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoggingIn(true);
     setError("");
 
-    // Simulate an API call
-    setTimeout(() => {
-      setIsLoggingIn(false);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
       
-      const storedUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-      const userMatch = storedUsers.find(u => u.email === email && u.password === password);
-      
-      // Hardcoded check or dynamic check
-      if (email === "user@mystore.com" && password === "password123") {
-        localStorage.setItem("isUserLoggedIn", "true");
-        localStorage.setItem("currentUser", JSON.stringify({ name: "Demo User", email: "user@mystore.com" }));
-        window.location.href = "/";
-      } else if (userMatch) {
-        localStorage.setItem("isUserLoggedIn", "true");
-        localStorage.setItem("currentUser", JSON.stringify({ name: userMatch.name, email: userMatch.email }));
-        window.location.href = "/";
-      } else {
-        setError("Invalid credentials. Please try again.");
-        // Shake animation on error
-        gsap.fromTo(formRef.current, 
-          { x: -10 },
-          { x: 10, duration: 0.1, yoyo: true, repeat: 5, onComplete: () => gsap.set(formRef.current, {x: 0}) }
-        );
+      if (!res.ok) {
+        throw new Error("Invalid credentials");
       }
-    }, 1200);
+      
+      const data = await res.json();
+      loginUser(data);
+      window.location.href = "/";
+    } catch (err) {
+      setError("Invalid credentials. Please try again.");
+      gsap.fromTo(formRef.current, 
+        { x: -10 },
+        { x: 10, duration: 0.1, yoyo: true, repeat: 5, onComplete: () => gsap.set(formRef.current, {x: 0}) }
+      );
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (

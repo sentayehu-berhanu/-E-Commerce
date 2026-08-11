@@ -1,24 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
+import { UserContext } from "../context/UserContext";
 
 export default function Navbar() {
   const { cart } = useContext(CartContext);
+  const { user, logoutUser } = useContext(UserContext);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const isLoggedIn = localStorage.getItem("isUserLoggedIn") === "true";
+  const isLoggedIn = user !== null || localStorage.getItem("isUserLoggedIn") === "true";
   
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if(searchQuery.trim()) {
-      // In a full app, this would route to /search?q=searchQuery
-      // For now, just close it and reset
-      setSearchQuery("");
+      navigate(`/?search=${encodeURIComponent(searchQuery)}#shop`);
       setShowSearch(false);
-      window.location.hash = "#shop";
     }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    navigate(`/?search=${encodeURIComponent(e.target.value)}#shop`);
   };
 
   return (
@@ -69,7 +74,7 @@ export default function Navbar() {
                 type="text" 
                 placeholder="Search..." 
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 autoFocus
                 style={{
                   padding: '8px 15px',
@@ -121,8 +126,7 @@ export default function Navbar() {
               </Link>
               <button 
                 onClick={() => {
-                  localStorage.removeItem("isUserLoggedIn");
-                  localStorage.removeItem("currentUser");
+                  logoutUser();
                   window.location.href = "/";
                 }}
                 style={{ padding: '10px 20px', color: '#ff4d4f', textDecoration: 'none', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%', fontSize: '0.9rem' }} 

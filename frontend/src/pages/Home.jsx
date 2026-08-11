@@ -8,10 +8,13 @@ export default function Home() {
   const { products } = useContext(ProductContext);
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
+  const searchQuery = searchParams.get("search");
 
-  const filteredProducts = category && category !== "New Arrivals"
-    ? products.filter(p => p.category === category)
-    : products;
+  const filteredProducts = products.filter(p => {
+    const categoryMatch = !category || category === "New Arrivals" || p.category === category;
+    const searchMatch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return categoryMatch && searchMatch;
+  });
 
   return (
     <div className="home">
