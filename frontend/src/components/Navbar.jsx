@@ -36,49 +36,35 @@ export default function Navbar() {
         
         {/* Categories Dropdown */}
         <div 
+          className="group"
           style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '100%', padding: '20px 0' }}
-          onMouseEnter={(e) => { e.currentTarget.querySelector('.dropdown-menu').style.display = 'flex'; }}
-          onMouseLeave={(e) => { e.currentTarget.querySelector('.dropdown-menu').style.display = 'none'; }}
         >
           <span style={{ color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
             Categories <span style={{ fontSize: '0.7rem' }}>▼</span>
           </span>
           <div 
-            className="dropdown-menu"
-            style={{
-              display: 'none',
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              background: 'white',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-              borderRadius: '12px',
-              flexDirection: 'column',
-              padding: '10px 0',
-              minWidth: '180px',
-              border: '1px solid #f0f0f0'
-            }}
+            className="hidden group-hover:flex absolute top-full left-0 bg-white shadow-2xl shadow-black/5 rounded-xl flex-col py-2 min-w-[180px] border border-gray-100"
           >
-            <Link to="/#shop" style={{ padding: '10px 20px', color: '#555', textDecoration: 'none', fontWeight: 600, borderBottom: '1px solid #f0f0f0', marginBottom: '5px' }} onMouseEnter={(e) => e.target.style.background = '#f5f5f7'} onMouseLeave={(e) => e.target.style.background = 'white'}>All Products</Link>
-            <Link to="/?category=New Arrivals#shop" style={{ padding: '10px 20px', color: '#555', textDecoration: 'none' }} onMouseEnter={(e) => e.target.style.background = '#f5f5f7'} onMouseLeave={(e) => e.target.style.background = 'white'}>New Arrivals</Link>
-            <Link to="/?category=Electronics#shop" style={{ padding: '10px 20px', color: '#555', textDecoration: 'none' }} onMouseEnter={(e) => e.target.style.background = '#f5f5f7'} onMouseLeave={(e) => e.target.style.background = 'white'}>Electronics</Link>
-            <Link to="/?category=Home Goods#shop" style={{ padding: '10px 20px', color: '#555', textDecoration: 'none' }} onMouseEnter={(e) => e.target.style.background = '#f5f5f7'} onMouseLeave={(e) => e.target.style.background = 'white'}>Home Goods</Link>
-            <Link to="/?category=Apparel#shop" style={{ padding: '10px 20px', color: '#555', textDecoration: 'none' }} onMouseEnter={(e) => e.target.style.background = '#f5f5f7'} onMouseLeave={(e) => e.target.style.background = 'white'}>Apparel</Link>
+            <Link to="/#shop" className="px-5 py-2.5 text-gray-500 no-underline font-semibold border-b border-gray-100 mb-1 hover:bg-gray-50">All Products</Link>
+            <Link to="/?category=New Arrivals#shop" className="px-5 py-2.5 text-gray-500 no-underline hover:bg-gray-50">New Arrivals</Link>
+            <Link to="/?category=Electronics#shop" className="px-5 py-2.5 text-gray-500 no-underline hover:bg-gray-50">Electronics</Link>
+            <Link to="/?category=Home Goods#shop" className="px-5 py-2.5 text-gray-500 no-underline hover:bg-gray-50">Home Goods</Link>
+            <Link to="/?category=Apparel#shop" className="px-5 py-2.5 text-gray-500 no-underline hover:bg-gray-50">Apparel</Link>
           </div>
         </div>
 
-        <Link to="/about" style={{ color: '#555', textDecoration: 'none' }}>About</Link>
-        <Link to="/contact" style={{ color: '#555', textDecoration: 'none' }}>Contact</Link>
-        <Link to="/admin" style={{ color: '#555', textDecoration: 'none' }}>Admin</Link>
+        <Link to="/about" className="text-gray-500 no-underline hover:text-gray-900">About</Link>
+        <Link to="/contact" className="text-gray-500 no-underline hover:text-gray-900">Contact</Link>
+        <Link to="/admin" className="text-gray-500 no-underline hover:text-gray-900">Admin</Link>
       </div>
 
       {/* Right: Icons */}
-      <div style={{ display: 'flex', gap: '25px', alignItems: 'center', fontSize: '1.2rem', color: '#111' }}>
+      <div className="flex gap-6 items-center text-xl text-gray-900">
         
         {/* Search */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <div className="relative flex items-center">
           {showSearch && (
-            <form onSubmit={handleSearchSubmit} style={{ position: 'absolute', right: '35px', top: '-5px' }}>
+            <form onSubmit={handleSearchSubmit} className="absolute right-9 -top-1">
               <input 
                 type="text" 
                 placeholder="Search..." 

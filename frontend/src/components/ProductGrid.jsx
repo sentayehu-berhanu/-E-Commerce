@@ -45,7 +45,7 @@ export default function ProductGrid({ products }) {
         {/* Product Grid */}
         <div ref={ref} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '30px' }}>
           {products.map(p => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p._id || p.id} product={p} />
           ))}
           {products.length === 0 && (
             <div style={{ width: '100%', textAlign: 'center', padding: '40px', color: '#86868b', gridColumn: '1 / -1' }}>

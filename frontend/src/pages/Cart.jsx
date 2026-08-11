@@ -59,7 +59,7 @@ export default function Cart() {
             {/* Table Rows */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', borderBottom: '1px solid #f0f0f0', paddingBottom: '30px', marginBottom: '30px' }}>
               {cart.map(item => (
-                <div className="cart-row" key={item.id} style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="cart-row" key={item._id || item.id} style={{ display: 'flex', alignItems: 'center' }}>
                   
                   {/* Product */}
                   <div style={{ flex: 2, display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -77,16 +77,16 @@ export default function Cart() {
                   {/* Quantity */}
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} style={{ width: '30px', height: '35px', background: 'white', border: 'none', borderRight: '1px solid #e0e0e0', cursor: 'pointer', color: '#555' }}>-</button>
+                      <button onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)} style={{ width: '30px', height: '35px', background: 'white', border: 'none', borderRight: '1px solid #e0e0e0', cursor: 'pointer', color: '#555' }}>-</button>
                       <span style={{ width: '40px', textAlign: 'center', fontSize: '0.95rem', fontWeight: 500, color: '#111' }}>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} style={{ width: '30px', height: '35px', background: 'white', border: 'none', borderLeft: '1px solid #e0e0e0', cursor: 'pointer', color: '#555' }}>+</button>
+                      <button onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)} style={{ width: '30px', height: '35px', background: 'white', border: 'none', borderLeft: '1px solid #e0e0e0', cursor: 'pointer', color: '#555' }}>+</button>
                     </div>
                   </div>
 
                   {/* Total & Remove */}
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 600, color: '#111' }}>${(item.price * item.quantity).toFixed(2)}</span>
-                    <button onClick={() => removeFromCart(item.id)} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '1.2rem', cursor: 'pointer' }}>×</button>
+                    <button onClick={() => removeFromCart(item._id || item.id)} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '1.2rem', cursor: 'pointer' }}>×</button>
                   </div>
                   
                 </div>

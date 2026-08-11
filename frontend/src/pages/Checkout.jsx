@@ -34,6 +34,14 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("Credit/Debit Card");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("currentUser");
+    if (storedUser) {
+      setEmail(JSON.parse(storedUser).email);
+    }
+  }, []);
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -55,12 +63,27 @@ export default function Checkout() {
     return () => ctx.revert();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setIsProcessing(true);
     
-    setTimeout(() => {
+    try {
+      const newOrder = {
+        email: email,
+        items: cart,
+        total: total,
+      };
+
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder)
+      });
+      
+      if (!res.ok) throw new Error('Order failed');
+
       setIsProcessing(false);
       setIsSuccess(true);
       
@@ -70,7 +93,11 @@ export default function Checkout() {
       localStorage.setItem("totalOrders", (currentOrders + 1).toString());
 
       clearCart();
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      setIsProcessing(false);
+      alert("Failed to place order");
+    }
   };
 
   if (isSuccess) {
@@ -113,7 +140,7 @@ export default function Checkout() {
               <div style={{ display: 'flex', gap: '20px' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', color: '#555', marginBottom: '8px' }}>Email Address</label>
-                  <input type="email" placeholder="Enter your email" required style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #e0e0e0', outline: 'none', fontSize: '0.9rem', boxSizing: 'border-box' }} />
+                  <input type="email" placeholder="Enter your email" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #e0e0e0', outline: 'none', fontSize: '0.9rem', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', color: '#555', marginBottom: '8px' }}>Phone Number</label>

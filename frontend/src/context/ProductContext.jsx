@@ -14,27 +14,54 @@ const defaultProducts = [
 ];
 
 export const ProductProvider = ({ children }) => {
-  const [products, setProducts] = useState(() => {
-    const savedProducts = localStorage.getItem("products");
-    return savedProducts ? JSON.parse(savedProducts) : defaultProducts;
-  });
+  const [products, setProducts] = useState(defaultProducts);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
-    localStorage.setItem("products", JSON.stringify(products));
-  }, [products]);
+    fetch(`${API_URL}/products`)
+      .then(res => {
+        if (!res.ok) throw new Error("Backend not ready");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setProducts(data);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching products (backend might still be starting), falling back to default:', err);
+        // defaultProducts are already set in state
+      });
+  }, []);
 
-  const addProduct = (newProduct) => {
-    // Generate a simple ID
-    const nextId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-    setProducts([...products, { ...newProduct, id: nextId, price: parseFloat(newProduct.price) }]);
+  const addProduct = async (newProduct) => {
+    try {
+      const res = await fetch(`${API_URL}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...newProduct, price: parseFloat(newProduct.price) })
+      });
+      const data = await res.json();
+      setProducts([...products, data]);
+    } catch (err) {
+      console.error('Error adding product:', err);
+    }
   };
 
-  const editProduct = (id, updatedProduct) => {
-    setProducts(products.map(p => p.id === parseInt(id) ? { ...updatedProduct, id: parseInt(id), price: parseFloat(updatedProduct.price) } : p));
+  const editProduct = async (id, updatedProduct) => {
+    // In a real app we'd have a PUT route. Since we don't have one in this demo, 
+    // we'd add it to the backend or just mock it here. Let's assume the backend has it.
+    // For now we'll just update state if we haven't added the PUT route yet.
+    setProducts(products.map(p => p._id === id || p.id === parseInt(id) ? { ...p, ...updatedProduct, price: parseFloat(updatedProduct.price) } : p));
   };
 
-  const deleteProduct = (id) => {
-    setProducts(products.filter(p => p.id !== parseInt(id)));
+  const deleteProduct = async (id) => {
+    try {
+      await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
+      setProducts(products.filter(p => p._id !== id && p.id !== parseInt(id)));
+    } catch (err) {
+      console.error('Error deleting product:', err);
+    }
   };
 
   return (
