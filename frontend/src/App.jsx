@@ -47,6 +47,7 @@ const AnimatedRoutes = () => {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout/success" element={<Checkout />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/signup" element={<UserSignup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -62,20 +63,27 @@ const AnimatedRoutes = () => {
   );
 };
 
+import { NotificationProvider } from "./context/NotificationContext";
+import { CurrencyProvider } from "./context/CurrencyContext";
+
 export default function App() {
   return (
     <UserProvider>
-      <ProductProvider>
-        <CartProvider>
-          <BrowserRouter>
-            <Navbar />
-            <Toast />
-            <AIAssistant />
-            <AnimatedRoutes />
-            <Footer />
-          </BrowserRouter>
-        </CartProvider>
-      </ProductProvider>
+      <NotificationProvider>
+        <CurrencyProvider>
+          <ProductProvider>
+            <CartProvider>
+              <BrowserRouter>
+                <Navbar />
+                <Toast />
+                <AIAssistant />
+                <AnimatedRoutes />
+                <Footer />
+              </BrowserRouter>
+            </CartProvider>
+          </ProductProvider>
+        </CurrencyProvider>
+      </NotificationProvider>
     </UserProvider>
   );
 }

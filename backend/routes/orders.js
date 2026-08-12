@@ -91,6 +91,22 @@ router.patch('/:id/status', protect, admin, async (req, res) => {
       { status: req.body.status },
       { new: true }
     );
+    
+    // Create a notification for the user if the status is Shipped or Delivered
+    if (req.body.status === 'Shipped' || req.body.status === 'Delivered') {
+      const User = require('../models/User');
+      const Notification = require('../models/Notification');
+      
+      const user = await User.findOne({ email: updatedOrder.email });
+      if (user) {
+        await Notification.create({
+          user: user._id,
+          message: `Your order #${updatedOrder._id} has been ${req.body.status.toLowerCase()}.`,
+          type: 'order'
+        });
+      }
+    }
+    
     res.json(updatedOrder);
   } catch (err) {
     res.status(400).json({ message: err.message });

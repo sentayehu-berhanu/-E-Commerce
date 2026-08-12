@@ -1,13 +1,17 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import gsap from "gsap";
 import { CartContext } from "../context/CartContext";
+import { CurrencyContext } from "../context/CurrencyContext";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 
 
 export default function Checkout() {
   const ref = useRef();
   const { cart, clearCart } = useContext(CartContext);
+  const { formatPrice } = useContext(CurrencyContext);
+  const { t } = useTranslation();
   const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,7 +24,8 @@ export default function Checkout() {
       setIsSuccess(true);
       clearCart();
     }
-  }, [location, clearCart]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
@@ -106,15 +111,15 @@ export default function Checkout() {
         
         {/* Header */}
         <div style={{ fontSize: '0.85rem', color: '#86868b', marginBottom: '15px' }}>
-          <Link to="/" style={{ color: '#86868b', textDecoration: 'none' }}>Home</Link> <span style={{ margin: '0 5px' }}>›</span> <Link to="/cart" style={{ color: '#86868b', textDecoration: 'none' }}>Cart</Link> <span style={{ margin: '0 5px' }}>›</span> Checkout
+          <Link to="/" style={{ color: '#86868b', textDecoration: 'none' }}>{t('nav.home')}</Link> <span style={{ margin: '0 5px' }}>›</span> <Link to="/cart" style={{ color: '#86868b', textDecoration: 'none' }}>{t('cart.title')}</Link> <span style={{ margin: '0 5px' }}>›</span> {t('checkout.title')}
         </div>
-        <h1 style={{ fontSize: '2rem', fontWeight: 600, color: '#111', margin: '0 0 40px 0' }}>Checkout</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 600, color: '#111', margin: '0 0 40px 0' }}>{t('checkout.title')}</h1>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '50px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           
           {/* Left Column: Billing & Payment */}
           <div style={{ flex: '1 1 600px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#111', marginBottom: '20px' }}>Billing Details</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#111', marginBottom: '20px' }}>{t('checkout.billing')}</h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '50px' }}>
               <div>
@@ -181,11 +186,11 @@ export default function Checkout() {
 
           {/* Right Column: Order Summary */}
           <div style={{ flex: '1 1 350px', background: '#fcfcfc', border: '1px solid #f0f0f0', borderRadius: '16px', padding: '30px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#111', marginBottom: '25px' }}>Order Summary</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#111', marginBottom: '25px' }}>{t('checkout.summary')}</h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', borderBottom: '1px solid #e0e0e0', paddingBottom: '25px', marginBottom: '25px' }}>
               {cart.map(item => (
-                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div key={item.id || item._id} style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                   <div style={{ width: '50px', height: '50px', background: 'white', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #f0f0f0' }}>
                     <img src={item.image} alt={item.name} style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain' }} />
                   </div>
@@ -193,7 +198,7 @@ export default function Checkout() {
                     <h4 style={{ margin: '0 0 5px 0', fontSize: '0.85rem', fontWeight: 500, color: '#111' }}>{item.name}</h4>
                   </div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 500, color: '#555' }}>
-                    ${(item.price * item.quantity).toFixed(2)}
+                    {formatPrice(item.price * item.quantity)}
                   </div>
                 </div>
               ))}
@@ -201,22 +206,22 @@ export default function Checkout() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px dashed #e0e0e0', paddingBottom: '25px', marginBottom: '25px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#555' }}>
-                <span>Subtotal</span>
-                <span style={{ color: '#111' }}>${subtotal.toFixed(2)}</span>
+                <span>{t('cart.subtotal')}</span>
+                <span style={{ color: '#111' }}>{formatPrice(subtotal)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#555' }}>
-                <span>Shipping</span>
+                <span>{t('checkout.shipping')}</span>
                 <span style={{ color: '#111' }}>Free</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#555' }}>
-                <span>Tax (10%)</span>
-                <span style={{ color: '#111' }}>${tax.toFixed(2)}</span>
+                <span>{t('checkout.tax')}</span>
+                <span style={{ color: '#111' }}>{formatPrice(tax)}</span>
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-              <span style={{ fontSize: '1rem', color: '#111', fontWeight: 600 }}>Total</span>
-              <span style={{ fontSize: '1.2rem', color: '#111', fontWeight: 700 }}>${total.toFixed(2)}</span>
+              <span style={{ fontSize: '1rem', color: '#111', fontWeight: 600 }}>{t('cart.total')}</span>
+              <span style={{ fontSize: '1.2rem', color: '#111', fontWeight: 700 }}>{formatPrice(total)}</span>
             </div>
 
             {/* Badges */}
@@ -242,7 +247,7 @@ export default function Checkout() {
                 ← Back to Cart
               </Link>
               <button type="submit" disabled={isProcessing} style={{ flex: 1, padding: '15px', background: '#7a3ef5', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s', opacity: isProcessing ? 0.7 : 1 }}>
-                {isProcessing ? 'Processing...' : 'Place Order'}
+                {isProcessing ? 'Processing...' : t('checkout.placeOrder')}
               </button>
             </div>
 

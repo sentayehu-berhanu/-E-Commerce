@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { UserContext } from '../context/UserContext';
 import { ProductContext } from '../context/ProductContext';
+import { CurrencyContext } from '../context/CurrencyContext';
 import ProductCard from '../components/ProductCard';
 import gsap from 'gsap';
 
@@ -13,6 +14,7 @@ export default function ProductDetails() {
   const { addToCart } = useContext(CartContext);
   const { user } = useContext(UserContext);
   const { products } = useContext(ProductContext);
+  const { formatPrice } = useContext(CurrencyContext);
   
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -150,7 +152,7 @@ export default function ProductDetails() {
               <span style={{ fontSize: '0.9rem', color: '#86868b' }}>({product.reviews?.length || 0} reviews)</span>
             </div>
 
-            <p style={{ fontSize: '2rem', fontWeight: 600, color: '#111', margin: '0 0 30px 0' }}>${product.price?.toFixed(2)}</p>
+            <p style={{ fontSize: '2rem', fontWeight: 600, color: '#111', margin: '0 0 30px 0' }}>{formatPrice(product.price)}</p>
             
             <p style={{ fontSize: '1rem', color: '#555', lineHeight: '1.6', marginBottom: '40px' }}>
               Experience the perfect blend of premium materials and cutting-edge design. This product is engineered to elevate your daily routine with uncompromising quality and style.

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useTranslation } from "react-i18next";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Hero() {
   const ref = useRef();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -67,12 +69,12 @@ export default function Hero() {
         <div className="hero-content" style={{ flex: '1 1 500px', paddingBottom: '60px' }}>
           <div className="hero-content-inner">
             <p style={{ color: '#7a3ef5', letterSpacing: '2px', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '15px' }}>New Arrival</p>
-          <h1 style={{ fontSize: '4rem', fontWeight: 700, lineHeight: '1.1', marginBottom: '25px', letterSpacing: '-1px' }}>Discover Premium Products</h1>
-          <p style={{ color: '#a1a1a6', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '40px', maxWidth: '400px' }}>Shop the latest collection of high-quality products crafted for the best experience.</p>
+          <h1 style={{ fontSize: '4rem', fontWeight: 700, lineHeight: '1.1', marginBottom: '25px', letterSpacing: '-1px' }}>{t('hero.title')}</h1>
+          <p style={{ color: '#a1a1a6', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '40px', maxWidth: '400px' }}>{t('hero.subtitle')}</p>
           
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <button onClick={scrollToProducts} style={{ background: '#7a3ef5', color: 'white', border: 'none', padding: '15px 35px', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}>
-              Shop Now
+              {t('hero.shopNow')}
             </button>
             <button onClick={scrollToProducts} style={{ background: 'transparent', color: 'white', border: '1px solid #333', padding: '15px 35px', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer', transition: 'border-color 0.2s' }}>
               Explore Collection

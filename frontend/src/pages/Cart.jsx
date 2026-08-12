@@ -1,10 +1,14 @@
 import { useContext, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { CartContext } from "../context/CartContext";
+import { CurrencyContext } from "../context/CurrencyContext";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity } = useContext(CartContext);
+  const { formatPrice } = useContext(CurrencyContext);
+  const { t } = useTranslation();
   const cartRef = useRef();
 
   const subtotal = cart.reduce(
@@ -38,15 +42,15 @@ export default function Cart() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
           <div>
             <div style={{ fontSize: '0.85rem', color: '#86868b', marginBottom: '10px' }}>
-              <Link to="/" style={{ color: '#86868b', textDecoration: 'none' }}>Home</Link> <span style={{ margin: '0 5px' }}>›</span> Cart
+              <Link to="/" style={{ color: '#86868b', textDecoration: 'none' }}>{t('nav.home')}</Link> <span style={{ margin: '0 5px' }}>›</span> {t('cart.title')}
             </div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 600, color: '#111', margin: 0 }}>Your Cart</h1>
+            <h1 style={{ fontSize: '2rem', fontWeight: 600, color: '#111', margin: 0 }}>{t('cart.title')}</h1>
           </div>
-          <Link to="/" style={{ color: '#555', fontSize: '0.9rem', textDecoration: 'underline' }}>Continue Shopping</Link>
+          <Link to="/" style={{ color: '#555', fontSize: '0.9rem', textDecoration: 'underline' }}>{t('cart.continue')}</Link>
         </div>
 
         {cart.length === 0 ? (
-          <p style={{ color: '#86868b' }}>Your cart is empty. <Link to="/" style={{color: '#7a3ef5', textDecoration: 'none', fontWeight: 500}}>Go shopping!</Link></p>
+          <p style={{ color: '#86868b' }}>{t('cart.empty')}. <Link to="/" style={{color: '#7a3ef5', textDecoration: 'none', fontWeight: 500}}>{t('nav.shop')}</Link></p>
         ) : (
           <>
             {/* Table Header */}
@@ -72,7 +76,7 @@ export default function Cart() {
 
                   {/* Price */}
                   <div style={{ flex: 1, textAlign: 'center', fontSize: '1rem', color: '#555' }}>
-                    ${item.price.toFixed(2)}
+                    {formatPrice(item.price)}
                   </div>
 
                   {/* Quantity */}
@@ -86,7 +90,7 @@ export default function Cart() {
 
                   {/* Total & Remove */}
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 600, color: '#111' }}>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span style={{ fontSize: '1rem', fontWeight: 600, color: '#111' }}>{formatPrice(item.price * item.quantity)}</span>
                     <button onClick={() => removeFromCart(item._id || item.id)} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '1.2rem', cursor: 'pointer' }}>×</button>
                   </div>
                   
@@ -109,20 +113,20 @@ export default function Cart() {
               {/* Totals */}
               <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#555' }}>
-                  <span>Subtotal</span>
-                  <span style={{ color: '#111' }}>${subtotal.toFixed(2)}</span>
+                  <span>{t('cart.subtotal')}</span>
+                  <span style={{ color: '#111' }}>{formatPrice(subtotal)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#555' }}>
                   <span>Shipping</span>
                   <span style={{ color: '#111' }}>Free</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 600, color: '#111', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f0f0f0' }}>
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{t('cart.total')}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
                 
                 <Link to="/checkout" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '15px', background: '#7a3ef5', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer', textDecoration: 'none', marginTop: '10px' }}>
-                  Proceed to Checkout
+                  {t('cart.checkout')}
                 </Link>
               </div>
 

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import Lenis from "@studio-freight/lenis"
+import './i18n';
 
 // Setup Lenis Smooth Scrolling
 const lenis = new Lenis({

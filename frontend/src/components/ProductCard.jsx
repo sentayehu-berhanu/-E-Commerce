@@ -2,11 +2,13 @@ import { useContext, useState } from "react";
 import gsap from "gsap";
 import { CartContext } from "../context/CartContext";
 import { UserContext } from "../context/UserContext";
+import { CurrencyContext } from "../context/CurrencyContext";
 import { Link } from "react-router-dom";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useContext(CartContext);
   const { wishlist, toggleWishlist } = useContext(UserContext);
+  const { formatPrice } = useContext(CurrencyContext);
   const [added, setAdded] = useState(false);
 
   const productId = product._id || product.id;
@@ -124,7 +126,7 @@ export default function ProductCard({ product }) {
 
         {/* Price & Add to Cart */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#111' }}>${product.price.toFixed(2)}</p>
+          <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#111' }}>{formatPrice(product.price)}</p>
           
           <button 
             onClick={handleAddToCart}
