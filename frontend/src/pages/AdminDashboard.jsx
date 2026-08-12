@@ -10,8 +10,11 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const token = user.token ? `Bearer ${user.token}` : "";
+
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    fetch(`${API_URL}/orders`)
+    fetch(`${API_URL}/orders`, { headers: { Authorization: token } })
       .then(res => res.json())
       .then(data => setOrders(data))
       .catch(err => console.error(err));
@@ -19,10 +22,16 @@ export default function AdminDashboard() {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
+      const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      const token = user.token ? `Bearer ${user.token}` : "";
+      
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: token
+        },
         body: JSON.stringify({ status: newStatus })
       });
       

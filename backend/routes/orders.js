@@ -1,13 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const { protect, admin } = require('../middleware/auth');
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripeKey = process.env.STRIPE_SECRET_KEY || 'dummy_key_to_prevent_crash';
+const stripe = require('stripe')(stripeKey);
 
 // Get all orders (for admin or filtering by email)
-router.get('/', async (req, res) => {
+router.get('/', protect, async (req, res) => {
   try {
     const { email } = req.query;
+    // Allow users to see their own orders, or admin to see all
+    if (!req.user.isAdmin && req.user.email !== email) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+    
     const filter = email ? { email } : {};
     const orders = await Order.find(filter).sort({ createdAt: -1 });
     res.json(orders);
@@ -17,7 +24,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create Stripe Checkout Session
-router.post('/create-checkout-session', async (req, res) => {
+router.post('/create-checkout-session', protect, async (req, res) => {
   try {
     const { email, items, total } = req.body;
     
@@ -66,7 +73,7 @@ router.post('/create-checkout-session', async (req, res) => {
 
 
 // Create new order
-router.post('/', async (req, res) => {
+router.post('/', protect, async (req, res) => {
   const order = new Order(req.body);
   try {
     const savedOrder = await order.save();
@@ -77,7 +84,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update order status
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', protect, admin, async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,

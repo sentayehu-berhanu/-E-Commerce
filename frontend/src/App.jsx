@@ -7,6 +7,7 @@ import { ProductProvider } from "./context/ProductContext";
 import { UserProvider } from "./context/UserContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Toast from "./components/Toast";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
@@ -16,10 +17,14 @@ import AdminAddProduct from "./pages/AdminAddProduct";
 import AdminEditProduct from "./pages/AdminEditProduct";
 import UserLogin from "./pages/UserLogin";
 import UserSignup from "./pages/UserSignup";
+import ForgotPassword from "./pages/ForgotPassword";
 import UserDashboard from "./pages/UserDashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ProductDetails from "./pages/ProductDetails";
+import AIAssistant from "./components/AIAssistant";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -44,11 +49,12 @@ const AnimatedRoutes = () => {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<UserLogin />} />
         <Route path="/signup" element={<UserSignup />} />
-        <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/add-product" element={<AdminAddProduct />} />
-        <Route path="/admin/edit-product/:id" element={<AdminEditProduct />} />
+        <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/add-product" element={<AdminRoute><AdminAddProduct /></AdminRoute>} />
+        <Route path="/admin/edit-product/:id" element={<AdminRoute><AdminEditProduct /></AdminRoute>} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
@@ -63,6 +69,8 @@ export default function App() {
         <CartProvider>
           <BrowserRouter>
             <Navbar />
+            <Toast />
+            <AIAssistant />
             <AnimatedRoutes />
             <Footer />
           </BrowserRouter>

@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import gsap from "gsap";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 export default function UserSignup() {
   const containerRef = useRef();
   const formRef = useRef();
   const navigate = useNavigate();
+  const { loginUser } = useContext(UserContext);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,41 +40,36 @@ export default function UserSignup() {
     return () => ctx.revert();
   }, [navigate]);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setIsSigningUp(true);
     setError("");
 
-    // Simulate an API call
-    setTimeout(() => {
-      setIsSigningUp(false);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
       
-      try {
-        const storedUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-        
-        // Check if email already exists
-        if (storedUsers.some(u => u.email === email)) {
-          setError("An account with this email already exists.");
-          gsap.fromTo(formRef.current, 
-            { x: -10 },
-            { x: 10, duration: 0.1, yoyo: true, repeat: 5, onComplete: () => gsap.set(formRef.current, {x: 0}) }
-          );
-          return;
-        }
-
-        // Add new user
-        const newUser = { name, email, password };
-        storedUsers.push(newUser);
-        localStorage.setItem("registeredUsers", JSON.stringify(storedUsers));
-        
-        // Auto log in
-        localStorage.setItem("isUserLoggedIn", "true");
-        localStorage.setItem("currentUser", JSON.stringify({ name: newUser.name, email: newUser.email }));
-        window.location.href = "/";
-      } catch (err) {
-        setError("Something went wrong. Please try again.");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "An error occurred during registration.");
       }
-    }, 1200);
+      
+      const data = await res.json();
+      loginUser(data);
+      window.location.href = "/";
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+      gsap.fromTo(formRef.current, 
+        { x: -10 },
+        { x: 10, duration: 0.1, yoyo: true, repeat: 5, onComplete: () => gsap.set(formRef.current, {x: 0}) }
+      );
+    } finally {
+      setIsSigningUp(false);
+    }
   };
 
   return (

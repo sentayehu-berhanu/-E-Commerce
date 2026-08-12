@@ -17,10 +17,47 @@ export default function ProductCard({ product }) {
     item === productId || (item._id && item._id === productId)
   );
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault();
     addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+
+    // Toast
+    window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: `${product.name} added to cart!` } }));
+
+    // Fly animation
+    const button = e.currentTarget;
+    const card = button.closest('.card');
+    const img = card.querySelector('img');
+    const cartIcon = document.getElementById('cart-icon');
+
+    if (img && cartIcon) {
+      const imgRect = img.getBoundingClientRect();
+      const cartRect = cartIcon.getBoundingClientRect();
+
+      const flyingImg = img.cloneNode(true);
+      flyingImg.style.position = 'fixed';
+      flyingImg.style.left = `${imgRect.left}px`;
+      flyingImg.style.top = `${imgRect.top}px`;
+      flyingImg.style.width = `${imgRect.width}px`;
+      flyingImg.style.height = `${imgRect.height}px`;
+      flyingImg.style.zIndex = 1000;
+      flyingImg.style.pointerEvents = 'none';
+      document.body.appendChild(flyingImg);
+
+      gsap.to(flyingImg, {
+        x: cartRect.left - imgRect.left,
+        y: cartRect.top - imgRect.top,
+        scale: 0.1,
+        opacity: 0.5,
+        duration: 0.8,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          flyingImg.remove();
+        }
+      });
+    }
   };
 
   const averageRating = product.reviews && product.reviews.length > 0
@@ -43,10 +80,14 @@ export default function ProductCard({ product }) {
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-5px)';
         e.currentTarget.style.boxShadow = '0 10px 20px rgba(0,0,0,0.05)';
+        const img = e.currentTarget.querySelector('img');
+        if (img) img.style.transform = 'scale(1.05)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'none';
         e.currentTarget.style.boxShadow = 'none';
+        const img = e.currentTarget.querySelector('img');
+        if (img) img.style.transform = 'scale(1)';
       }}
     >
       {/* Heart Icon */}
@@ -60,7 +101,7 @@ export default function ProductCard({ product }) {
       {/* Image wrapped in Link */}
       <Link to={`/product/${productId}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', background: '#f8f8f8', borderRadius: '12px', padding: '20px' }}>
-          <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          <img src={product.image} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transition: 'transform 0.4s ease' }} />
         </div>
 
         {/* Details */}

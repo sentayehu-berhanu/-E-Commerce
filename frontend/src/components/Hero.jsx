@@ -24,7 +24,32 @@ export default function Hero() {
         ease: "power3.out"
       });
     }, ref);
-    return () => ctx.revert();
+
+    const handleMouseMove = (e) => {
+      const { clientX, clientY } = e;
+      const xPos = (clientX / window.innerWidth - 0.5) * 30;
+      const yPos = (clientY / window.innerHeight - 0.5) * 30;
+      
+      gsap.to(".hero-img-inner", {
+        x: xPos,
+        y: yPos,
+        duration: 1,
+        ease: "power2.out"
+      });
+      gsap.to(".hero-content-inner", {
+        x: -xPos * 0.3,
+        y: -yPos * 0.3,
+        duration: 1,
+        ease: "power2.out"
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      ctx.revert();
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
   }, []);
 
   const scrollToProducts = () => {
@@ -40,7 +65,8 @@ export default function Hero() {
         
         {/* Left Content */}
         <div className="hero-content" style={{ flex: '1 1 500px', paddingBottom: '60px' }}>
-          <p style={{ color: '#7a3ef5', letterSpacing: '2px', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '15px' }}>New Arrival</p>
+          <div className="hero-content-inner">
+            <p style={{ color: '#7a3ef5', letterSpacing: '2px', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '15px' }}>New Arrival</p>
           <h1 style={{ fontSize: '4rem', fontWeight: 700, lineHeight: '1.1', marginBottom: '25px', letterSpacing: '-1px' }}>Discover Premium Products</h1>
           <p style={{ color: '#a1a1a6', fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '40px', maxWidth: '400px' }}>Shop the latest collection of high-quality products crafted for the best experience.</p>
           
@@ -77,12 +103,13 @@ export default function Hero() {
               </div>
             </div>
           </div>
+          </div>
         </div>
 
         {/* Right Image */}
         <div className="hero-image" style={{ flex: '1 1 400px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', position: 'relative' }}>
-          <div style={{ width: '100%', height: '500px', background: 'url(https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80) no-repeat center center/cover', borderRadius: '20px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}></div>
-          <div style={{ position: 'absolute', bottom: '30px', display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(0,0,0,0.5)', padding: '10px 20px', borderRadius: '30px', backdropFilter: 'blur(10px)' }}>
+          <div className="hero-img-inner" style={{ width: '100%', height: '500px', background: 'url(https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80) no-repeat center center/cover', borderRadius: '20px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}></div>
+          <div className="hero-img-inner" style={{ position: 'absolute', bottom: '30px', display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(0,0,0,0.5)', padding: '10px 20px', borderRadius: '30px', backdropFilter: 'blur(10px)' }}>
             <div style={{ width: '30px', height: '30px', borderRadius: '15px', background: 'white', color: 'black', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.8rem', cursor: 'pointer' }}>▶</div>
             <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Watch Video</span>
           </div>

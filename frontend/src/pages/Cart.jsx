@@ -18,10 +18,11 @@ export default function Cart() {
     const ctx = gsap.context(() => {
       if (cart.length > 0) {
         gsap.from(".cart-row", {
-          y: 20,
+          x: -30,
           opacity: 0,
-          duration: 0.4,
-          stagger: 0.1
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "back.out(1.5)"
         });
       }
     }, cartRef);

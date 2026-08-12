@@ -2,6 +2,8 @@ import { useEffect, useState, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { UserContext } from '../context/UserContext';
+import { ProductContext } from '../context/ProductContext';
+import ProductCard from '../components/ProductCard';
 import gsap from 'gsap';
 
 export default function ProductDetails() {
@@ -10,6 +12,7 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const { addToCart } = useContext(CartContext);
   const { user } = useContext(UserContext);
+  const { products } = useContext(ProductContext);
   
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -26,12 +29,16 @@ export default function ProductDetails() {
         setProduct(data);
       } catch (err) {
         console.error(err);
+        const localProduct = products.find(p => p._id === id || String(p.id) === id);
+        if (localProduct) {
+          setProduct(localProduct);
+        }
       } finally {
         setLoading(false);
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, products]);
 
   useEffect(() => {
     if (product) {
@@ -42,6 +49,11 @@ export default function ProductDetails() {
         stagger: 0.1,
         ease: "power2.out"
       });
+
+      // Track Recently Viewed
+      const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+      const updatedViewed = [product, ...recentlyViewed.filter(p => (p._id || p.id) !== (product._id || product.id))].slice(0, 4);
+      localStorage.setItem('recentlyViewed', JSON.stringify(updatedViewed));
     }
   }, [product]);
 
@@ -59,7 +71,10 @@ export default function ProductDetails() {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const res = await fetch(`${API_URL}/products/${id}/reviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`
+        },
         body: JSON.stringify({
           user: user._id,
           name: user.name,
@@ -91,6 +106,17 @@ export default function ProductDetails() {
   const averageRating = product.reviews && product.reviews.length > 0
     ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length).toFixed(1)
     : 0;
+
+  const recommendedProducts = products
+    .filter(p => p.category === product?.category && (p._id || p.id) !== (product?._id || product?.id))
+    .slice(0, 4);
+  
+  if (recommendedProducts.length < 4) {
+    const others = products
+      .filter(p => p.category !== product?.category && (p._id || p.id) !== (product?._id || product?.id))
+      .slice(0, 4 - recommendedProducts.length);
+    recommendedProducts.push(...others);
+  }
 
   return (
     <div style={{ background: '#f5f5f7', minHeight: '100vh', padding: '40px 20px', fontFamily: "'Inter', sans-serif" }}>
@@ -221,6 +247,19 @@ export default function ProductDetails() {
 
           </div>
         </div>
+
+        {/* AI Recommendations */}
+        <div className="product-detail-anim" style={{ marginTop: '60px' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#111', marginBottom: '30px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.5rem' }}>🤖</span> You may also like
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '30px' }}>
+            {recommendedProducts.map(p => (
+              <ProductCard key={p._id || p.id} product={p} />
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );

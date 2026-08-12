@@ -92,7 +92,10 @@ export default function UserLogin() {
           </div>
           
           <div className="input-group">
-            <label htmlFor="password" style={{ display: 'block', marginBottom: '8px', fontWeight: 500, fontSize: '0.9rem' }}>Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label htmlFor="password" style={{ fontWeight: 500, fontSize: '0.9rem' }}>Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Forgot Password?</Link>
+            </div>
             <input 
               type="password" 
               id="password" 

@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import gsap from "gsap";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 export default function AdminLogin() {
   const containerRef = useRef();
   const formRef = useRef();
   const navigate = useNavigate();
+  const { loginUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -37,28 +39,41 @@ export default function AdminLogin() {
     return () => ctx.revert();
   }, [navigate]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoggingIn(true);
     setError("");
 
-    // Simulate an API call
-    setTimeout(() => {
-      setIsLoggingIn(false);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
       
-      // Hardcoded check
-      if (email === "admin@mystore.com" && password === "admin123") {
-        localStorage.setItem("isAdmin", "true");
-        navigate("/admin/dashboard");
-      } else {
-        setError("Invalid admin credentials. Please try again.");
-        // Shake animation on error
-        gsap.fromTo(formRef.current, 
-          { x: -10 },
-          { x: 10, duration: 0.1, yoyo: true, repeat: 5, onComplete: () => gsap.set(formRef.current, {x: 0}) }
-        );
+      if (!res.ok) {
+        throw new Error("Invalid credentials");
       }
-    }, 1200);
+      
+      const data = await res.json();
+      
+      if (!data.isAdmin) {
+        throw new Error("You do not have admin privileges.");
+      }
+
+      loginUser(data);
+      localStorage.setItem("isAdmin", "true");
+      navigate("/admin/dashboard");
+    } catch (err) {
+      setError(err.message || "Invalid admin credentials. Please try again.");
+      gsap.fromTo(formRef.current, 
+        { x: -10 },
+        { x: 10, duration: 0.1, yoyo: true, repeat: 5, onComplete: () => gsap.set(formRef.current, {x: 0}) }
+      );
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (

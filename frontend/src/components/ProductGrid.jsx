@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ProductGrid({ products }) {
+export default function ProductGrid({ products, title, hideBadges = false }) {
   const ref = useRef();
 
   useEffect(() => {
@@ -18,9 +18,11 @@ export default function ProductGrid({ products }) {
             start: "top 85%"
           },
           opacity: 0,
-          y: 30,
-          duration: 0.6,
-          delay: i * 0.1
+          y: 50,
+          scale: 0.9,
+          duration: 0.8,
+          delay: i * 0.1,
+          ease: "back.out(1.5)"
         });
       });
     }, ref);
@@ -35,7 +37,7 @@ export default function ProductGrid({ products }) {
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 600, color: '#111', margin: 0 }}>
-            {new URLSearchParams(window.location.search).get("category") || "Featured Products"}
+            {title || new URLSearchParams(window.location.search).get("category") || "Featured Products"}
           </h2>
           <Link to="/" style={{ color: '#111', fontSize: '0.9rem', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
             View All Products <span>→</span>
@@ -55,7 +57,8 @@ export default function ProductGrid({ products }) {
         </div>
 
         {/* Trust Badges - Bottom */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', paddingTop: '40px', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap', gap: '20px' }}>
+        {!hideBadges && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', paddingTop: '40px', borderTop: '1px solid #f0f0f0', flexWrap: 'wrap', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: '#f8f8f8', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>🚚</div>
             <div>
@@ -84,7 +87,8 @@ export default function ProductGrid({ products }) {
               <p style={{ margin: 0, fontSize: '0.75rem', color: '#86868b', maxWidth: '150px', lineHeight: '1.4' }}>Our support team is always here to help you</p>
             </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

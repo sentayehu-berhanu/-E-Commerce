@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { CartContext } from "../context/CartContext";
 import { UserContext } from "../context/UserContext";
+import gsap from "gsap";
 
 export default function Navbar() {
   const { cart } = useContext(CartContext);
@@ -12,6 +13,16 @@ export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const cartIconRef = useRef();
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      gsap.fromTo(cartIconRef.current, 
+        { scale: 1 }, 
+        { scale: 1.3, duration: 0.15, yoyo: true, repeat: 1, ease: "power1.inOut" }
+      );
+    }
+  }, [cartCount]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -143,7 +154,7 @@ export default function Navbar() {
           </Link>
         )}
         
-        <Link to="/cart" style={{ color: 'inherit', textDecoration: 'none', position: 'relative' }}>
+        <Link to="/cart" id="cart-icon" ref={cartIconRef} style={{ color: 'inherit', textDecoration: 'none', position: 'relative', display: 'inline-block' }}>
           🛒
           {cartCount > 0 && (
             <span style={{ position: 'absolute', top: '-8px', right: '-12px', background: '#7a3ef5', color: 'white', fontSize: '0.7rem', fontWeight: 600, width: '18px', height: '18px', borderRadius: '9px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

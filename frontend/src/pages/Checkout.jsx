@@ -61,10 +61,16 @@ export default function Checkout() {
         total: total,
       };
 
+      const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      const token = user.token ? `Bearer ${user.token}` : "";
+
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const res = await fetch(`${API_URL}/orders/create-checkout-session`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: token
+        },
         body: JSON.stringify(newOrder)
       });
       

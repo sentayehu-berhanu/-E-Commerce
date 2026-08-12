@@ -34,13 +34,22 @@ export const ProductProvider = ({ children }) => {
       });
   }, []);
 
+  const getAuthToken = () => {
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    return user.token ? `Bearer ${user.token}` : "";
+  };
+
   const addProduct = async (newProduct) => {
     try {
       const res = await fetch(`${API_URL}/products`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: getAuthToken()
+        },
         body: JSON.stringify({ ...newProduct, price: parseFloat(newProduct.price) })
       });
+      if (!res.ok) throw new Error("Failed to add product");
       const data = await res.json();
       setProducts([...products, data]);
     } catch (err) {
@@ -57,7 +66,13 @@ export const ProductProvider = ({ children }) => {
 
   const deleteProduct = async (id) => {
     try {
-      await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/products/${id}`, { 
+        method: 'DELETE',
+        headers: {
+          Authorization: getAuthToken()
+        }
+      });
+      if (!res.ok) throw new Error("Failed to delete product");
       setProducts(products.filter(p => p._id !== id && p.id !== parseInt(id)));
     } catch (err) {
       console.error('Error deleting product:', err);

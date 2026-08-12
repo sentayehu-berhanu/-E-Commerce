@@ -19,7 +19,9 @@ export default function UserDashboard() {
     
     if (currentUserEmail) {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      fetch(`${API_URL}/orders?email=${currentUserEmail}`)
+      fetch(`${API_URL}/orders?email=${currentUserEmail}`, {
+        headers: { Authorization: user?.token ? `Bearer ${user.token}` : "" }
+      })
         .then(res => res.json())
         .then(data => setOrders(data))
         .catch(err => console.error(err));

@@ -11,16 +11,26 @@ export const UserProvider = ({ children }) => {
     const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      if (parsedUser._id) {
-        fetchWishlist(parsedUser._id);
+      if (!parsedUser._id) {
+        // Invalid or old fake session, log them out
+        localStorage.removeItem("isUserLoggedIn");
+        localStorage.removeItem("currentUser");
+        setUser(null);
+        setWishlist([]);
+      } else {
+        setUser(parsedUser);
+        fetchWishlist(parsedUser._id, parsedUser.token);
       }
     }
   }, []);
 
-  const fetchWishlist = async (userId) => {
+  const fetchWishlist = async (userId, token) => {
     try {
-      const res = await fetch(`${API_URL}/users/${userId}/wishlist`);
+      const res = await fetch(`${API_URL}/users/${userId}/wishlist`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setWishlist(data); // Array of populated products or ids
@@ -31,14 +41,17 @@ export const UserProvider = ({ children }) => {
   };
 
   const toggleWishlist = async (productId) => {
-    if (!user || !user._id) {
+    if (!user || !user._id || !user.token) {
       alert("Please log in to save items to your wishlist.");
       return;
     }
     try {
       const res = await fetch(`${API_URL}/users/${user._id}/wishlist`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`
+        },
         body: JSON.stringify({ productId })
       });
       if (res.ok) {
@@ -55,7 +68,7 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem("currentUser", JSON.stringify(userData));
     setUser(userData);
     if (userData._id) {
-      fetchWishlist(userData._id);
+      fetchWishlist(userData._id, userData.token);
     }
   };
 
